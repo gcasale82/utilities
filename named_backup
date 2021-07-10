@@ -1,0 +1,40 @@
+import hashlib
+import os
+import shutil
+import datetime
+import time
+
+if os.getenv('named_hash') is not None :
+    named_hash = os.getenv('named_hash')
+else :
+    os.environ["named_hash"] = "starting python value"
+    named_hash = os.getenv('named_hash')
+print("named_hash variable at the beginning is : " + named_hash)
+file='/home/PDNS/gcasale/named.conf'
+backup_dir ='/home/PDNS/gcasale/backup_named'
+
+
+def calcola_hash(file):
+    BLOCK_SIZE = 1024
+    file_hash = hashlib.sha256()
+    with open(file, 'rb') as f:
+        fb = f.read(BLOCK_SIZE)
+        while len(fb) > 0:
+            file_hash.update(fb)
+            fb = f.read(BLOCK_SIZE)
+    print(file_hash.hexdigest())
+    return file_hash.hexdigest()
+
+
+while True :
+    file_hash = calcola_hash(file)
+    now = datetime.datetime.now()
+    timestamp = str(now.strftime("%Y_%m_%d_%H_%M_%S"))
+    if named_hash == file_hash :
+        pass
+    else :
+        named_hash = file_hash
+        os.environ["named_hash"] = file_hash
+        destination_file = file+timestamp
+        shutil.copy(file, destination_file)
+        time.sleep(10)
