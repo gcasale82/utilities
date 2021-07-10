@@ -4,37 +4,36 @@ import shutil
 import datetime
 import time
 
-if os.getenv('named_hash') is not None :
-    named_hash = os.getenv('named_hash')
-else :
-    os.environ["named_hash"] = "starting python value"
-    named_hash = os.getenv('named_hash')
-print("named_hash variable at the beginning is : " + named_hash)
-file='/home/PDNS/gcasale/named.conf'
-backup_dir ='/home/PDNS/gcasale/backup_named'
+class named_backup():
+    def __init__(self):
+        self.files = {'/home/casaleg/test/named/named.conf' : '' , '/home/casaleg/test/named/zone.dns' : ''}
+        self.backup_dir = '/home/casaleg/test/named/backup/'
 
+    def check_hash(self):
+        BLOCK_SIZE = 1024
+        for k,v in self.files.copy().items() :
+            file_hash = hashlib.sha256()
+            with open(k, 'rb') as f:
+                fb = f.read(BLOCK_SIZE)
+                while len(fb) > 0:
+                    file_hash.update(fb)
+                    fb = f.read(BLOCK_SIZE)
+            if file_hash.hexdigest() == v :
+                pass
+            else :
+                self.backup(k)
+                self.files[k]= file_hash.hexdigest()
+    def backup(self,k):
+        filename = os.path.basename(k)
+        now = datetime.datetime.now()
+        timestamp = str(now.strftime("%Y_%m_%d_%H_%M_%S"))
+        destination_file = self.backup_dir + filename + timestamp
+        try :
+            shutil.copy(k,destination_file)
+        except :
+            print("something went wrong during the copy!")
 
-def calcola_hash(file):
-    BLOCK_SIZE = 1024
-    file_hash = hashlib.sha256()
-    with open(file, 'rb') as f:
-        fb = f.read(BLOCK_SIZE)
-        while len(fb) > 0:
-            file_hash.update(fb)
-            fb = f.read(BLOCK_SIZE)
-    print(file_hash.hexdigest())
-    return file_hash.hexdigest()
-
-
+named_backup_istance = named_backup()
 while True :
-    file_hash = calcola_hash(file)
-    now = datetime.datetime.now()
-    timestamp = str(now.strftime("%Y_%m_%d_%H_%M_%S"))
-    if named_hash == file_hash :
-        pass
-    else :
-        named_hash = file_hash
-        os.environ["named_hash"] = file_hash
-        destination_file = file+timestamp
-        shutil.copy(file, destination_file)
-        time.sleep(10)
+    time.sleep(10)
+    named_backup_istance.check_hash()
