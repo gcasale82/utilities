@@ -2,7 +2,6 @@ import socket
 import os
 import re
 
-from paramiko import PasswordRequiredException
 
 class bcolors:
     HEADER = '\033[95m'
