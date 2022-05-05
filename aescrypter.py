@@ -106,9 +106,9 @@ def decrypt_file(filepath ) :
     status = True
 
 def secure_delete(filename):
-        with open(filename , "ba+") as delfile:
+        with open(filename , "wb+") as delfile:
             length = delfile.tell()
-            for i in range(10):
+            for i in range(4):
                 delfile.seek(0)
                 delfile.write(os.urandom(length))
         os.remove(filename)
