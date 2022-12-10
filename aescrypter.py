@@ -56,7 +56,7 @@ def encrypt_file(filepath) :
     password = False
     while(not password) :
         password = encrypt_password()
-    key = scrypt(password, salt, key_len=32, N=2**17, r=8, p=1)
+    key = scrypt(password, salt, key_len=32, N=2**22, r=8, p=1)
     out_filepath = get_out_filepath(filepath)
     try :
         with open(filepath , "rb") as file_in , open(out_filepath ,"wb") as file_out :
@@ -80,7 +80,7 @@ def decrypt_file(filepath ) :
     try :
         with open(filepath , "rb") as file_in , open(decrypted_filepath ,"wb") as file_out :
             salt = file_in.read(32)
-            key = scrypt(password, salt, key_len=32, N=2**17, r=8, p=1)
+            key = scrypt(password, salt, key_len=32, N=2**22, r=8, p=1)
             nonce = file_in.read(16)  # The nonce is 16 bytes long
             cipher = AES.new(key, AES.MODE_GCM, nonce=nonce)
             file_in_size = os.path.getsize(filepath)
